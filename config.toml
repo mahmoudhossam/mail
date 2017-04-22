@@ -1,0 +1,7 @@
+[login]
+username = "user@provider.tld"
+password = "obvious"
+
+[server]
+host = "IMAP server hostname"
+port = 993 # IMAP server port
