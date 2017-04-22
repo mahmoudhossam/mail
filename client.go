@@ -59,6 +59,16 @@ func listMailboxes(client *client.Client) {
 	}
 }
 
+func checkMail(client *client.Client) (newEmails string) {
+	items := []string{"MESSAGES", "UNSEEN"}
+	status, err := client.Status("INBOX", items)
+	if err != nil {
+		log.Fatal(err)
+	}
+	newEmails = fmt.Sprintf("You have %v new emails, %v total.", status.Unseen, status.Messages)
+	return
+}
+
 func main() {
 	var config Config
 	readConfig(&config)
@@ -76,6 +86,5 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	listMailboxes(c)
+	log.Println(checkMail(c))
 }
