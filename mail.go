@@ -9,6 +9,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
+	"github.com/urfave/cli"
 )
 
 // Config user configuration
@@ -29,8 +30,10 @@ type LoginConfig struct {
 	Password string
 }
 
+var configFilePath = "config.toml"
+
 func readConfig(conf *Config) {
-	tomlData, err := ioutil.ReadFile("config.toml")
+	tomlData, err := ioutil.ReadFile(configFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			log.Fatal("Could not find configuration file, exiting...")
@@ -59,32 +62,59 @@ func listMailboxes(client *client.Client) {
 	}
 }
 
-func checkMail(client *client.Client) (newEmails string) {
+func checkMail(client *client.Client) {
 	items := []string{"MESSAGES", "UNSEEN"}
 	status, err := client.Status("INBOX", items)
 	if err != nil {
 		log.Fatal(err)
 	}
-	newEmails = fmt.Sprintf("You have %v new emails, %v total.", status.Unseen, status.Messages)
-	return
+	fmt.Printf("You have %v new emails, %v total.\n", status.Unseen, status.Messages)
 }
 
-func main() {
-	var config Config
-	readConfig(&config)
+func connect(config *Config) (c *client.Client) {
 	c, err := client.DialTLS(fmt.Sprintf("%v:%v", config.Server.Host, config.Server.Port), nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Println("Connected")
+	return
+}
 
-	// Logout when done
-	defer c.Logout()
+func makeApp() *cli.App {
+	app := cli.NewApp()
+	app.Name = "Mail"
+	app.Version = "0.1"
+	app.Usage = "Reads email"
+	app.UsageText = "mail COMMAND"
+	app.Description = "A simple e-mail client."
+	app.EnableBashCompletion = true
+	app.Commands = []cli.Command{
+		{
+			Name:    "check",
+			Aliases: []string{"c"},
+			Action: func(ctx *cli.Context) {
+				var config Config
+				readConfig(&config)
+				c := connect(&config)
+				// Logout when done
+				defer c.Logout()
 
-	err = c.Login(config.Login.Username, config.Login.Password)
+				err := c.Login(config.Login.Username, config.Login.Password)
 
-	if err != nil {
-		log.Fatal(err)
+				if err != nil {
+					log.Fatal(err)
+				}
+				checkMail(c)
+			},
+		},
 	}
-	log.Println(checkMail(c))
+	app.Flags = []cli.Flag{
+		cli.StringFlag{Name: "config", Value: "config.toml", Destination: &configFilePath},
+	}
+	return app
+}
+
+func main() {
+	app := makeApp()
+	app.Run(os.Args)
 }
