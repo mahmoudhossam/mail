@@ -76,7 +76,6 @@ func connect(config *Config) (c *client.Client) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Connected")
 	return
 }
 
