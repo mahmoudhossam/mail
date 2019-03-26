@@ -63,7 +63,7 @@ func listMailboxes(client *client.Client) {
 }
 
 func checkMail(client *client.Client) {
-	items := []string{"MESSAGES", "UNSEEN"}
+	items := []imap.StatusItem{"MESSAGES", "UNSEEN"}
 	status, err := client.Status("INBOX", items)
 	if err != nil {
 		log.Fatal(err)
