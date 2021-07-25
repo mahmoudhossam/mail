@@ -1,4 +1,4 @@
-package main
+package mail
 
 import (
 	"fmt"
@@ -76,9 +76,4 @@ func connect(config *Config) (c *client.Client) {
 		log.Fatal(err)
 	}
 	return
-}
-
-func main() {
-	app := makeApp()
-	app.Run(os.Args)
 }
