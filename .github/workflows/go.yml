@@ -10,6 +10,11 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    services:
+      mailhog:
+        image: mailhog/mailhog
+        ports:
+          - 1025:1025
     steps:
     - uses: actions/checkout@v2
 
