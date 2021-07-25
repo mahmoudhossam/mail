@@ -29,10 +29,10 @@ type LoginConfig struct {
 	Password string
 }
 
-var configFilePath = "config.toml"
+var ConfigFilePath = "config.toml"
 
-func readConfig(conf *Config) {
-	tomlData, err := ioutil.ReadFile(configFilePath)
+func ReadConfig(conf *Config) {
+	tomlData, err := ioutil.ReadFile(ConfigFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			log.Fatal("Could not find configuration file, exiting...")
@@ -44,7 +44,7 @@ func readConfig(conf *Config) {
 	}
 }
 
-func listMailboxes(client *client.Client) {
+func ListMailboxes(client *client.Client) {
 	mailboxes := make(chan *imap.MailboxInfo, 10)
 	done := make(chan error, 1)
 	go func() {
@@ -61,7 +61,7 @@ func listMailboxes(client *client.Client) {
 	}
 }
 
-func checkMail(client *client.Client) {
+func CheckMail(client *client.Client) {
 	items := []imap.StatusItem{"MESSAGES", "UNSEEN"}
 	status, err := client.Status("INBOX", items)
 	if err != nil {
@@ -70,7 +70,7 @@ func checkMail(client *client.Client) {
 	fmt.Printf("You have %v new emails, %v total.\n", status.Unseen, status.Messages)
 }
 
-func connect(config *Config) (c *client.Client) {
+func Connect(config *Config) (c *client.Client) {
 	c, err := client.DialTLS(fmt.Sprintf("%v:%v", config.Server.Host, config.Server.Port), nil)
 	if err != nil {
 		log.Fatal(err)

@@ -2,10 +2,9 @@ package main
 
 import (
 	"os"
-	"github.com/mahmoudhossam/mail"
 )
 
 func main() {
-	app := mail.makeApp()
+	app := MakeApp()
 	app.Run(os.Args)
 }
