@@ -31,7 +31,7 @@ type LoginConfig struct {
 
 var ConfigFilePath = "config.toml"
 
-func ReadConfig(conf *Config) {
+func readConfig(conf *Config) {
 	tomlData, err := ioutil.ReadFile(ConfigFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -70,10 +70,22 @@ func CheckMail(client *client.Client) {
 	fmt.Printf("You have %v new emails, %v total.\n", status.Unseen, status.Messages)
 }
 
-func Connect(config *Config) (c *client.Client) {
+func connect(config *Config) (c *client.Client) {
 	c, err := client.DialTLS(fmt.Sprintf("%v:%v", config.Server.Host, config.Server.Port), nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return
+}
+
+func GetClient() *client.Client {
+	var config Config
+	readConfig(&config)
+	c := connect(&config)
+	err := c.Login(config.Login.Username, config.Login.Password)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	return c
 }
